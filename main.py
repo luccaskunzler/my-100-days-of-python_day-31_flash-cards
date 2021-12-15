@@ -5,7 +5,7 @@ import random
 BACKGROUND_COLOR = "#B1DDC6"
 NORMAL_FONT = ("Arial", 36, "normal")
 SMALL_FONT = ("Arial", 10, "normal")
-BIG_FONT = ("Arial", 48, "normal")
+BIG_FONT = ("Arial", 48, "bold")
 
 
 def italian(word):
@@ -31,6 +31,10 @@ def english(word):
     word = canvas.create_text(400, 260, fill="darkblue", font=BIG_FONT,
                               text=f"{word}")
 
+def got_wrong():
+    global wrong
+    wrong += 1
+    give_random()
 
 def give_random():
     global random_line
@@ -39,8 +43,9 @@ def give_random():
     i = 0
     flip()
 
-def remove_row():
-    global random_line
+def got_right():
+    global random_line, right
+    right += 1
     data.drop([random_line], axis=0, inplace=True)
     give_random()
 
@@ -66,15 +71,19 @@ italian_flag = PhotoImage(file="./images/italy.png")
 english_flag = PhotoImage(file="./images/english.png")
 
 wrong_image = PhotoImage(file="./images/wrong.png")
-wrong_button = Button(image=wrong_image, highlightthickness=0, bg=BACKGROUND_COLOR, command=give_random, borderwidth=0)
+wrong_button = Button(image=wrong_image, highlightthickness=0, bg=BACKGROUND_COLOR, command=got_wrong, borderwidth=0)
 wrong_button.grid(row=1, column=0)
 
 right_image = PhotoImage(file="./images/right.png")
-right_button = Button(image=right_image, highlightthickness=0, bg=BACKGROUND_COLOR, command=remove_row, borderwidth=0)
+right_button = Button(image=right_image, highlightthickness=0, bg=BACKGROUND_COLOR, command=got_right, borderwidth=0)
 right_button.grid(row=1, column=1)
 
 # import csv of word to data
 data = pandas.read_csv("./data/italian-english.csv")
+
+right = 0
+wrong = 0
+print(f"You have {len(data)} words yet to go")
 
 # starts with a random number
 give_random()
@@ -87,7 +96,9 @@ window.bind("<space>", flip)
 
 
 
-
-
-
 window.mainloop()
+
+data.to_csv("./data/italian-english.csv", index=False)
+print(f"You have {len(data)} words yet to go")
+print(f"In this session, you got {right} words right!")
+print(f"In this session, you got {wrong} words wrong!")
